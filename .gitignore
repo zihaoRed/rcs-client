@@ -15,7 +15,6 @@ send_headers.txt
 recv_phone_*
 mls_snapshot*
 mls_group.json
-token_*
 *.apk
 *.apks
 *.xapk
