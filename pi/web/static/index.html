@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b57d0">
+  <title>Messages · Pi RCS</title>
+  <link rel="stylesheet" href="/static/style.css?v=3">
+</head>
+<body>
+<div id="app">
+  <aside id="sidebar">
+    <header class="sidebar-head">
+      <div class="brand">
+        <div class="brand-icon">M</div>
+        <div>
+          <h1>Messages</h1>
+          <span class="brand-sub">Pi RCS Client</span>
+        </div>
+      </div>
+      <button id="newChat" class="icon-btn" title="新对话">＋</button>
+    </header>
+
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14z"/></svg>
+      <input id="search" type="search" placeholder="搜索对话" autocomplete="off">
+    </div>
+
+    <div id="threadList" class="thread-list"></div>
+
+    <footer class="conn">
+      <span id="connDot" class="dot"></span>
+      <span id="connText">连接中…</span>
+      <button id="refreshBtn" class="link-btn" title="刷新状态">检查</button>
+    </footer>
+  </aside>
+
+  <main id="chat">
+    <section id="empty" class="empty">
+      <div class="empty-icon">💬</div>
+      <h2>选择对话</h2>
+      <p>从左侧选择一个联系人，或点击右上角 ＋ 开始新对话。</p>
+      <p class="empty-note">Pi 独立 RCS · 明文发送 · E2EE 接收解密</p>
+    </section>
+
+    <section id="chatView" class="chat-view" hidden>
+      <header class="chat-head">
+        <button id="backBtn" class="icon-btn back-btn" title="返回">←</button>
+        <div id="chatAvatar" class="avatar"></div>
+        <div class="chat-title">
+          <div id="chatName">—</div>
+          <div id="chatSub">—</div>
+        </div>
+        <span id="chatBadge" class="badge">RCS</span>
+      </header>
+
+      <div id="banner" class="banner" hidden></div>
+
+      <div id="messages" class="messages"></div>
+      <div id="typing" class="typing" hidden>对方正在输入…</div>
+
+      <footer class="composer">
+        <textarea id="input" rows="1" placeholder="RCS 消息" autocomplete="off"></textarea>
+        <button id="sendBtn" class="send-btn" title="发送">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </footer>
+    </section>
+  </main>
+</div>
+
+<div id="modal" class="modal" hidden>
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>新对话</h3>
+      <button id="modalClose" class="icon-btn" title="关闭">×</button>
+    </div>
+    <div class="modal-body">
+      <label class="field">
+        <span>号码</span>
+        <input id="newNumber" type="tel" placeholder="+1XXXXXXXXXX" autocomplete="tel">
+      </label>
+      <label class="field">
+        <span>备注名（可选）</span>
+        <input id="newName" type="text" placeholder="例如：Hui Jin">
+      </label>
+      <button id="startChat" class="primary-btn">开始聊天</button>
+      <div class="modal-sep"><span>或选择联系人</span></div>
+      <div id="contactList" class="contact-list"></div>
+    </div>
+  </div>
+</div>
+
+<script src="/static/app.js?v=3"></script>
+</body>
+</html>

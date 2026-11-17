@@ -1,0 +1,10 @@
+[package]
+name = "mls_probe"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mls-rs = { path = "vendor/mls-rs/mls-rs", features = ["gsma_rcs_e2ee_feature", "x509", "out_of_order"] }
+mls-rs-core = { path = "vendor/mls-rs/mls-rs-core" }
+mls-rs-crypto-rustcrypto = { path = "vendor/mls-rs/mls-rs-crypto-rustcrypto" }
+mls-rs-crypto-openssl = { path = "vendor/mls-rs/mls-rs-crypto-openssl" }

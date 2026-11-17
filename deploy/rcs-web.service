@@ -1,0 +1,19 @@
+[Unit]
+Description=Pi RCS Web UI
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/rcsclient
+Environment=PYTHONUNBUFFERED=1
+Environment=PROFILE=default
+Environment=MLS_PROBE=/home/pi/mls_probe/target/release/mls_probe
+EnvironmentFile=-/home/pi/rcsclient/.env
+ExecStart=/usr/bin/python3 /home/pi/rcsclient/tools/rcs_web.py --work /home/pi/rcsclient/work/${PROFILE} --port 8090
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

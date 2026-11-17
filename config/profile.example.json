@@ -1,0 +1,12 @@
+{
+  "profile": "default",
+  "sender": "+1XXXXXXXXXX",
+  "recipient": "+1XXXXXXXXXX",
+  "work_dir": "pc/work/default",
+  "pi": {
+    "host": "raspberrypi.local",
+    "user": "pi",
+    "key": "~/.ssh/id_ed25519"
+  },
+  "web_port": 8090
+}

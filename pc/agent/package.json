@@ -1,0 +1,16 @@
+{
+  "name": "agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "frida-compile token_harvester.js -o ../frida/token_harvester_bundle.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "frida-compile": "^19.1.0",
+    "frida-java-bridge": "^7.0.13"
+  }
+}

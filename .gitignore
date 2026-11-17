@@ -1,0 +1,44 @@
+# secrets / runtime captures
+.env
+work/
+*.db
+*.db-wal
+*.db-shm
+*.jsonl
+*.log
+*.bin
+!pi/templates/*.example.pb
+
+# credentials and phone data
+client_info*.bin
+send_headers.txt
+recv_phone_*
+mls_snapshot*
+mls_group.json
+token_*
+*.apk
+*.apks
+*.xapk
+*.xz
+*_frida-server*
+frida-server*
+
+# build artifacts
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+pc/agent/node_modules/
+pc/frida/*.js
+!pc/frida/.gitkeep
+mls/mls_probe/vendor/
+mls/mls_probe/target/
+mls/mls_probe/Cargo.lock
+.rustc_info.json
+
+# local / IDE
+.claude/
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
