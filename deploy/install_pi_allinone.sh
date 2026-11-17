@@ -20,7 +20,7 @@ fi
 
 echo "== installing system packages =="
 sudo apt-get update
-sudo apt-get install -y adb python3-venv python3-pip git libssl-dev pkg-config || true
+sudo apt-get install -y adb curl python3-venv python3-pip git libssl-dev pkg-config || true
 sudo apt-get install -y android-sdk-platform-tools-common || true
 if ! command -v npm >/dev/null 2>&1; then
   sudo apt-get install -y nodejs npm
