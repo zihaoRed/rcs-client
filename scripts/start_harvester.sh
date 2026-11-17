@@ -4,4 +4,6 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 cd "$ROOT"
 set -a; [ -f .env ] && . ./.env; set +a
 : "${PROFILE:=default}"
-exec python3 pc/token_harvester.py --profile "$PROFILE" --pi-push
+PYTHON=${PYTHON:-python3}
+if ! "$PYTHON" -V >/dev/null 2>&1; then PYTHON=python; fi
+exec "$PYTHON" pc/token_harvester.py --profile "$PROFILE" --pi-push

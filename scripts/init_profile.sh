@@ -5,7 +5,9 @@ cd "$ROOT"
 set -a; [ -f .env ] && . ./.env; set +a
 : "${PROFILE:=default}"
 : "${SENDER:?SENDER is required}"
-python3 - "$PROFILE" "$SENDER" <<'PY'
+PYTHON=${PYTHON:-python3}
+if ! "$PYTHON" -V >/dev/null 2>&1; then PYTHON=python; fi
+"$PYTHON" - "$PROFILE" "$SENDER" <<'PY'
 import json, sys
 from pathlib import Path
 profile, sender = sys.argv[1], sys.argv[2]

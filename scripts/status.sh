@@ -11,4 +11,6 @@ adb shell pidof com.google.android.apps.messaging:rcs || true
 echo "== recent registration =="
 adb logcat -d -b main -v time 2>/dev/null | grep -iE "RegisterRefresh|PERMISSION_DENIED|onTachyonRegistration" | tail -10 || true
 echo "== web =="
-curl -sS "http://${PI_HOST}:${PORT}/api/state" | python3 -m json.tool | head -60
+PYTHON=${PYTHON:-python3}
+if ! "$PYTHON" -V >/dev/null 2>&1; then PYTHON=python; fi
+curl -sS "http://${PI_HOST}:${PORT}/api/state" | "$PYTHON" -m json.tool | head -60
