@@ -86,3 +86,16 @@ The Pi does not require root; the web service runs as the `pi` user.
 - No Pi-originated E2EE.
 - No exclusive receive; the phone may receive duplicates.
 - No web authentication.
+
+
+## All-in-one Pi mode
+
+The repository now includes an all-in-one installer and systemd units
+(`deploy/install_pi_allinone.sh`, `rcs-harvester.service`, `rcs-mls-sync.service`).
+It removes the PC from the runtime path: the Pi runs `adb`, Frida, MLS export,
+the web UI, and the receiver, with the phone connected by USB.
+
+Status: **scripts and units are syntax-checked; physical USB handoff from the PC
+to the Pi has not yet been re-verified in this repository.** The PC-harvester
+mode remains the fully verified mode. See `docs/ALLINONE.md` for the intended
+deployment and troubleshooting.

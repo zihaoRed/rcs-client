@@ -50,12 +50,39 @@ The Pi sends **plaintext** RCS. Pi-originated E2EE send is not supported and ret
 - `frida-server` at `/data/local/tmp/frida-server`
 - PC with Python 3.10+, Node.js 18+, adb, SSH key to Pi
 - Pi with Python 3.10+, Flask, curl, Rust/cargo, libssl-dev, systemd
+- **Mode B (all-in-one)**: Pi also needs `adb`, `frida` Python, Node.js/npm,
+  USB access to the phone, and preferably a powered USB hub
 
 If a prerequisite is missing, report it instead of trying to bypass security controls.
 
 ---
 
-## Fast path (AI runbook)
+## Deployment modes
+
+### Mode A — PC harvester + Pi web
+
+The existing fast path below. The PC runs `token_harvester.py` and `mls_state.py` and pushes to the Pi over SSH.
+
+### Mode B — Pi all-in-one
+
+The Pi runs adb + Frida + MLS export + web itself. The phone connects to the Pi by USB.
+
+```bash
+# on the Pi
+SENDER=+1XXXXXXXXXX FRIDA_SERVER=/data/local/tmp/frida-server17   ./deploy/install_pi_allinone.sh
+sudo systemctl status rcs-harvester rcs-web --no-pager
+sudo systemctl start rcs-mls-sync   # after phone is connected/registered
+```
+
+Services: `rcs-harvester`, `rcs-web`, `rcs-mls-sync`.
+Work dir: `/home/pi/rcsclient/work/<profile>`.
+No SSH push is used; the harvester writes locally.
+
+See `docs/ALLINONE.md` for hardware, USB/udev, and troubleshooting.
+
+---
+
+## Fast path (AI runbook) — Mode A
 
 ### 0. Inspect state
 
@@ -118,7 +145,7 @@ python3 pc/mls_state.py export --profile default --push
 
 Requires `adb root`. This writes `pc/work/default/mls_snapshot.bin`.
 
-### 6. Build `mls_probe` on the Pi
+### 6. Build `mls_probe` on the Pi (Mode A)
 
 On the Pi:
 
@@ -128,13 +155,15 @@ On the Pi:
 
 It clones `awslabs/mls-rs` tag `0.51.0`, applies the patch in `mls/patches/`, builds, and installs to `/home/pi/mls_probe/target/release/mls_probe`.
 
-### 7. Deploy the Pi web app
+### 7. Deploy the Pi web app (Mode A)
 
 From the PC:
 
 ```bash
 ./deploy/install_pi.sh
 ```
+
+For Mode B, use `deploy/install_pi_allinone.sh` from the Pi instead.
 
 ### 8. Verify
 
@@ -175,6 +204,8 @@ Open `http://<PI_HOST>:8090`. Send a test message through the UI. Expected:
 | `EpochNotFound` | MLS snapshot behind | process commit / re-export phone snapshot |
 | `KeyMissing(0)` | out-of-order ratchet | build with `out_of_order` (already enabled) / process in order |
 | Messages crashes on attach | Frida instability | foreground app, avoid repeated attach; use spare device |
+| `rcs-harvester` restarts | no ADB/device, wrong frida-server path, locked phone | `journalctl -u rcs-harvester`, `adb devices`, check `FRIDA_SERVER` |
+| all-in-one web `AUTH_EXPIRED` | local recv credentials stale | keep `rcs-harvester` running, send from phone, check `work/<profile>/recv_phone_*` |
 
 ---
 

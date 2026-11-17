@@ -1,0 +1,16 @@
+[Unit]
+Description=Export phone MLS snapshot into the Pi work profile
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=pi
+WorkingDirectory=/home/pi/rcsclient
+Environment=PROFILE=default
+EnvironmentFile=-/home/pi/rcsclient/.env
+ExecStartPre=/home/pi/rcsclient/tools/harvester/wait_for_adb.sh
+ExecStart=/home/pi/rcsclient/venv/bin/python /home/pi/rcsclient/tools/harvester/mls_state.py export --work /home/pi/rcsclient/work --profile ${PROFILE}
+
+[Install]
+WantedBy=multi-user.target

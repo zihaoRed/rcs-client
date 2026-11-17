@@ -28,6 +28,7 @@ The Android phone is not mirrored. The Pi talks to Google directly over gRPC/HTT
 | Phone online + screen off → Pi receive | ✅ verified (phone may also receive duplicates) |
 | Pi E2EE send | ❌ not possible with this approach |
 | Phone RCS registration stability | ⚠️ can be rate-limited/blocked by Google (`PERMISSION_DENIED`) |
+| Pi all-in-one mode | 🟡 scripts/units provided; physical USB handoff pending verification |
 
 Known limitations:
 
@@ -58,12 +59,12 @@ flowchart LR
   Browser -- "HTTP + SSE" --> Pi
 ```
 
-Components:
+Components (the PC column is optional in all-in-one mode; see [Deployment modes](#deployment-modes)):
 
 | Component | Runs on | Purpose |
 |---|---|---|
-| `pc/token_harvester.py` | PC | Attaches Frida to Messages, captures token, SendMessage `client_info`, ReceiveMessages headers/frame, pushes to Pi |
-| `pc/mls_state.py` | PC | Exports the phone MLS group snapshot from `bugle_db` |
+| `pc/token_harvester.py` | PC or Pi | Attaches Frida to Messages, captures token, SendMessage `client_info`, ReceiveMessages headers/frame; pushes to Pi in Mode A, writes locally in Mode B |
+| `pc/mls_state.py` | PC or Pi | Exports the phone MLS group snapshot from `bugle_db` |
 | `pc/agent/token_harvester.js` | PC/Android | Frida agent (Cronet hooks) |
 | `pi/rcs_web.py` | Pi | Flask web UI, SQLite, SSE, receiver supervision, send API |
 | `pi/pi_receiver.py` | Pi | ReceiveMessages loop, E2EE decrypt, snapshot update |
@@ -83,7 +84,7 @@ Components:
 - `frida-server` for the matching Android ABI, placed at `/data/local/tmp/frida-server`.
 - A SIM/account with working RCS. The phone must be able to send/receive RCS messages.
 
-### PC
+### PC (Mode A, or development)
 
 - Python 3.10+
 - Node.js 18+ and npm
@@ -98,9 +99,44 @@ Components:
 - Flask (`pip install -r requirements.txt`)
 - systemd
 
+For **all-in-one mode** the Pi also needs:
+
+- `adb` and USB access to the phone
+- `frida` Python package (installed by the installer)
+- Node.js/npm (to build the Frida bundle)
+- a USB data cable and preferably a powered USB hub
+
 ---
 
-## Quick start
+## Deployment modes
+
+### Mode A — PC harvester + Pi web (verified)
+
+The PC runs `adb` + Frida + MLS export and pushes credentials to the Pi over SSH. This is the mode used for the original verification and is best for development/debugging.
+
+### Mode B — Pi all-in-one (PC optional)
+
+The Pi runs `adb` + Frida + MLS export + web + receiver itself. The phone connects to the Pi by USB. After installation the PC can be disconnected. See [docs/ALLINONE.md](docs/ALLINONE.md).
+
+```bash
+# on the Pi, from a clone of this repo
+SENDER=+1XXXXXXXXXX FRIDA_SERVER=/data/local/tmp/frida-server17 ./deploy/install_pi_allinone.sh
+
+# after the phone is connected and RCS is registered
+sudo systemctl start rcs-mls-sync
+```
+
+All-in-one services:
+
+| Service | Purpose |
+|---|---|
+| `rcs-harvester` | waits for adb, starts frida-server, captures credentials into the local work dir |
+| `rcs-web` | Flask UI + receiver |
+| `rcs-mls-sync` | oneshot MLS snapshot export (run manually after the phone is ready) |
+
+---
+
+## Quick start — Mode A: PC harvester + Pi web
 
 ### 1. Configure
 
@@ -289,7 +325,8 @@ Frida hooks can cause native crashes on some builds. Keep the app foregrounded w
 pc/                 PC-side harvest, MLS export, CLI helpers
 pi/                 Pi-side web app, receiver, static UI, example template
 mls/                mls_probe source + mls-rs patch + build script
-deploy/             systemd unit + Pi install script
+deploy/             installers, systemd units (web/harvester/mls-sync),
+                    wait_for_adb.sh, udev rules
 scripts/            PC setup/start/status helpers
 config/             example profile/contacts (no secrets)
 docs/               architecture, verification, security, AI runbook

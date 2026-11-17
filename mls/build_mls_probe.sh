@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
+export PATH="$HOME/.cargo/bin:$PATH"
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 SRC="$ROOT/mls/mls_probe"
 VENDOR="$SRC/vendor/mls-rs"

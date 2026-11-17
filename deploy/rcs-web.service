@@ -11,7 +11,7 @@ Environment=PYTHONUNBUFFERED=1
 Environment=PROFILE=default
 Environment=MLS_PROBE=/home/pi/mls_probe/target/release/mls_probe
 EnvironmentFile=-/home/pi/rcsclient/.env
-ExecStart=/usr/bin/python3 /home/pi/rcsclient/tools/rcs_web.py --work /home/pi/rcsclient/work/${PROFILE} --port 8090
+ExecStart=/home/pi/rcsclient/venv/bin/python /home/pi/rcsclient/tools/rcs_web.py --work /home/pi/rcsclient/work/${PROFILE} --port 8090
 Restart=always
 RestartSec=5
 

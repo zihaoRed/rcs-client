@@ -7,8 +7,8 @@ Reads bugle_db (needs adb root):
 and optionally pushes them to the Pi.
 
 Commands:
-  export [--profile default] [--push]
-  check  [--profile default]          # exit 2 if the phone state changed since export
+  export [--profile default] [--work DIR] [--push]
+  check  [--profile default] [--work DIR]   # exit 2 if phone state changed
 """
 from __future__ import annotations
 
@@ -163,11 +163,14 @@ def check(profile: str) -> int:
 
 
 def main() -> int:
+    global WORK
     ap = argparse.ArgumentParser()
     ap.add_argument("cmd", choices=["export", "check"])
     ap.add_argument("--profile", default="default")
+    ap.add_argument("--work", default=str(WORK), help="work root (default: pc/work)")
     ap.add_argument("--push", action="store_true")
     a = ap.parse_args()
+    WORK = Path(a.work).resolve()
     return export(a.profile, a.push) if a.cmd == "export" else check(a.profile)
 
 

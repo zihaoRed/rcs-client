@@ -1,0 +1,19 @@
+[Unit]
+Description=Pi RCS credential harvester (Frida + adb)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/rcsclient
+Environment=PYTHONUNBUFFERED=1
+Environment=PROFILE=default
+EnvironmentFile=-/home/pi/rcsclient/.env
+ExecStartPre=/home/pi/rcsclient/tools/harvester/wait_for_adb.sh
+ExecStart=/home/pi/rcsclient/venv/bin/python /home/pi/rcsclient/tools/harvester/token_harvester.py --work /home/pi/rcsclient/work --profile ${PROFILE}
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

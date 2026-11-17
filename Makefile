@@ -2,7 +2,7 @@ PROFILE ?= default
 PY ?= python3
 PI ?= $(PI_USER)@$(PI_HOST)
 
-.PHONY: setup init build-harvester harvester mls-sync deploy status clean
+.PHONY: setup init build-harvester harvester mls-sync deploy allinone status clean
 
 setup:
 	$(PY) -m venv .venv
@@ -25,6 +25,9 @@ mls-sync:
 
 deploy:
 	./deploy/install_pi.sh
+
+allinone:
+	./deploy/install_pi_allinone.sh
 
 status:
 	./scripts/status.sh

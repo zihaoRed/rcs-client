@@ -12,6 +12,8 @@ SSH=(ssh -i "$PI_KEY" -o StrictHostKeyChecking=accept-new "$PI_USER@$PI_HOST")
 
 "${SSH[@]}" "mkdir -p ~/rcsclient/tools ~/rcsclient/work/$PROFILE"
 scp -i "$PI_KEY" -o StrictHostKeyChecking=accept-new -r pi/. "$PI_USER@$PI_HOST:~/rcsclient/tools/"
+scp -i "$PI_KEY" -o StrictHostKeyChecking=accept-new requirements-web.txt "$PI_USER@$PI_HOST:~/rcsclient/tools/requirements-web.txt"
+"${SSH[@]}" "python3 -m venv ~/rcsclient/venv 2>/dev/null || (sudo apt-get install -y python3-venv && python3 -m venv ~/rcsclient/venv);   ~/rcsclient/venv/bin/pip install -q -r ~/rcsclient/tools/requirements-web.txt"
 "${SSH[@]}" "cat > ~/rcsclient/.env" <<ENV
 PROFILE=$PROFILE
 SENDER=${SENDER:-}

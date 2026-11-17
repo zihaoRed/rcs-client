@@ -13,6 +13,12 @@ Confirm with the user:
 
 Do not proceed if authorization is unclear.
 
+## Mode selection
+
+- **Mode A**: PC has USB access to the phone. Follow steps 1–10 below.
+- **Mode B (all-in-one)**: phone is connected to the Pi by USB. Follow the
+  "Mode B" section at the end; the PC is not needed except for editing.
+
 ## 1. Clone and configure
 
 ```bash
@@ -165,3 +171,85 @@ Actions:
 - Stop the harvester with Ctrl-C.
 - Stop the web service if needed: `sudo systemctl stop rcs-web`.
 - Never commit `work/`, `.env`, tokens, snapshots, or captures.
+
+
+---
+
+# Mode B — Pi all-in-one
+
+## B1. Clone on the Pi
+
+```bash
+git clone https://github.com/zihaoRed/rcs-client.git
+cd rcs-client
+```
+
+## B2. Connect the phone
+
+```bash
+adb devices
+# accept the USB debugging prompt on the phone
+adb root
+```
+
+Use a USB data cable and preferably a powered hub. If the device is not
+listed, check `dmesg`, the cable, and `/etc/udev/rules.d/99-android-adb.rules`.
+
+## B3. Install
+
+```bash
+SENDER=+1XXXXXXXXXX FRIDA_SERVER=/data/local/tmp/frida-server17 ./deploy/install_pi_allinone.sh
+```
+
+The installer builds the Frida bundle, builds `mls_probe` if missing, creates
+`/home/pi/rcsclient/venv`, writes `.env`, installs udev/systemd units, and
+starts `rcs-web` + `rcs-harvester`.
+
+## B4. Check services
+
+```bash
+sudo systemctl status rcs-web rcs-harvester --no-pager
+sudo journalctl -u rcs-harvester -n 80 --no-pager
+curl -sS http://127.0.0.1:8090/api/state
+```
+
+If `rcs-harvester` restarts:
+
+- `adb devices` must show `device`, not `unauthorized`.
+- `FRIDA_SERVER` must point to the frida-server binary on the phone.
+- The phone must be unlocked or have no secure PIN for automatic wake.
+- The Pi's `frida` Python version should match the phone's frida-server.
+
+## B5. MLS snapshot
+
+After the phone is connected and RCS is registered:
+
+```bash
+sudo systemctl start rcs-mls-sync
+ls -l /home/pi/rcsclient/work/default/mls_snapshot.bin
+```
+
+## B6. Verify
+
+Open `http://<PI_LAN_IP>:8090`, start a conversation, and send a message.
+Check:
+
+```bash
+tail -n 30 /home/pi/rcsclient/work/default/web_receiver.log
+```
+
+## B7. Updates
+
+```bash
+cd rcs-client
+git pull
+sudo systemctl restart rcs-web rcs-harvester
+# rebuild only if mls_probe/agent sources changed
+./mls/build_mls_probe.sh
+```
+
+## B8. PC-free operation
+
+After B3–B6, the PC is not required. The phone remains connected to the Pi;
+`rcs-harvester` refreshes credentials, `rcs-web` serves the UI, and
+`rcs-mls-sync` can be run whenever the phone's MLS state changes.

@@ -53,6 +53,41 @@ flowchart TB
   RECV --> JIBE
 ```
 
+## Deployment modes
+
+### Mode A — PC harvester + Pi web
+
+The PC runs `token_harvester.py`, `mls_state.py`, and `adb`; it pushes credentials
+and the MLS snapshot to the Pi over SSH. This is the originally verified mode.
+
+### Mode B — Pi all-in-one
+
+The Pi runs `adb`, the Frida harvester, `mls_state.py`, the web app, and the
+receiver. The phone connects to the Pi by USB. Credentials are written directly
+to `/home/pi/rcsclient/work/<profile>`; no SSH push is involved.
+
+```mermaid
+flowchart LR
+  Phone["Rooted Android<br/>USB ADB + frida-server"]
+  Pi["Raspberry Pi<br/>adb + Frida harvester<br/>+ MLS export + web + receiver"]
+  Google["Google Tachyon / Jibe"]
+  Browser["Browser"]
+  Phone -- "USB ADB/Frida" --> Pi
+  Pi -- "SendMessage / ReceiveMessages" --> Google
+  Phone -- "RCS registration" --> Google
+  Browser --> Pi
+```
+
+Systemd units in Mode B:
+
+| Unit | Purpose |
+|---|---|
+| `rcs-harvester` | waits for adb, starts frida-server, captures credentials locally |
+| `rcs-web` | web UI + receiver |
+| `rcs-mls-sync` | oneshot MLS snapshot export |
+
+See `docs/ALLINONE.md`.
+
 ## Data plane
 
 The Pi uses the same Tachyon endpoint as the phone:
@@ -111,11 +146,9 @@ pc/work/<profile>/
   mls_group.json
 ```
 
-These are gitignored. The PC harvester pushes them to:
-
-```
-/home/pi/rcsclient/work/<profile>/
-```
+These are gitignored. In Mode A the PC harvester pushes them to
+`/home/pi/rcsclient/work/<profile>/`; in Mode B the harvester writes directly
+to that directory.
 
 ## MLS / E2EE
 
