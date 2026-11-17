@@ -163,7 +163,7 @@ Then send **one plaintext RCS message** from the phone to a test number. The har
 - `send_template.pb` (from a `text/plain` SendMessage)
 - `recv_phone_headers.txt` / `recv_phone_frame.bin` (when a ReceiveMessages stream starts)
 
-If no plaintext template is captured, the web app falls back to a sanitized example template and uses `SENDER` from `.env`.
+If no plaintext template is captured, the web app falls back to a sanitized example template and uses `SENDER` from `.env`. The example template is structurally generated; if the server rejects it, send a plaintext RCS message from the phone so the harvester captures a real template.
 
 ### 6. Export the MLS state
 
